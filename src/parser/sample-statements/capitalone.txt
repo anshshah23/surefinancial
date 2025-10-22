@@ -1,0 +1,10 @@
+Capital One
+
+Account Statement
+**** 5555
+Statement Date: Sep 01, 2025 - Sep 30, 2025
+Payment Due Date: Oct 22, 2025
+New Balance: $45.67
+
+Transactions:
+- 09/20 Streaming Service $12.99

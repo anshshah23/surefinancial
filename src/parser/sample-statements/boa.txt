@@ -1,0 +1,9 @@
+Bank of America
+
+Account Number ****1234
+Statement Period: Sep 01, 2025 - Sep 30, 2025
+Payment Due: Oct 22, 2025
+Total Due: $890.12
+
+Transactions:
+- 09/15 Online Store $120.00

@@ -18,14 +18,12 @@ export default function Uploader({ onResult, onProgress, light = false }: Upload
     setLoading(true);
     setProgress(0);
     try {
-      // scroll to results area so user sees progress
       try { document.getElementById('results')?.scrollIntoView({ behavior: 'smooth' }); } catch (e) {}
       onProgress && onProgress({ status: 'processing', percent: 0 });
       const data = await uploadWithProgress(file, (p) => {
         setProgress(p);
         onProgress && onProgress({ status: 'processing', percent: p });
       });
-      // report completion
       onResult && onResult(data);
       onProgress && onProgress({ status: 'done', percent: 100 });
     } catch (err) {
@@ -78,7 +76,6 @@ export default function Uploader({ onResult, onProgress, light = false }: Upload
   }
 
   async function useSample() {
-    // simple sample text for demo; create a PDF in-browser using pdf-lib
     const sampleText = `DocuScan Sample Statement\n\nAccount: Sample Card Ending in 1234\nStatement Period: Sep 01, 2025 - Sep 30, 2025\nPayment Due Date: Oct 22, 2025\nNew Balance: $123.45\n`;
     try {
       const pdfLib = await import('pdf-lib');
@@ -88,9 +85,9 @@ export default function Uploader({ onResult, onProgress, light = false }: Upload
       const font = await doc.embedFont(StandardFonts.Helvetica);
       const fontSize = 12;
       page.drawText(sampleText, { x: 24, y: 760, size: fontSize, font });
-  const uint8 = await doc.save();
-  const u8 = Uint8Array.from(uint8);
-  const blob = new Blob([u8.buffer], { type: 'application/pdf' });
+      const uint8 = await doc.save();
+      const u8 = Uint8Array.from(uint8);
+      const blob = new Blob([u8.buffer], { type: 'application/pdf' });
       const file = new File([blob], 'docuscan-sample.pdf', { type: 'application/pdf' });
       await handleFile(file);
     } catch (e) {
@@ -99,31 +96,53 @@ export default function Uploader({ onResult, onProgress, light = false }: Upload
     }
   }
 
-  const dashed = light ? '2px dashed #e6e7f8' : '2px dashed #6b21a8';
-  const bg = light ? '#ffffff' : 'linear-gradient(180deg, rgba(107,33,168,0.06), transparent)';
-  const textColor = light ? '#111827' : '#fff';
-  const hintColor = light ? '#6b7280' : '#b9a0d9';
-  const btnBg = light ? '#111827' : '#6b21a8';
-
   return (
-    <div>
+    <div className="w-full">
       {loading && (
-        <div style={{ height: 8, background: '#f1f5f9', borderRadius: 6, overflow: 'hidden', marginBottom: 8 }}>
-          <div style={{ width: progress != null ? `${progress}%` : '40%', height: '100%', background: '#7c3aed', transition: 'width 200ms linear' }} />
+        <div className="h-2 bg-slate-100 rounded mb-2 overflow-hidden">
+          <div style={{ width: progress != null ? `${progress}%` : '40%' }} className="h-full bg-violet-500 transition-all duration-200" />
         </div>
       )}
-      <div onDrop={onDrop} onDragOver={(e) => e.preventDefault()} style={{ border: dashed, borderRadius: 10, padding: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: bg }}>
-        <div>
-          <strong style={{ color: textColor }}>Drop a PDF here</strong>
-          <div style={{ color: hintColor }}>or click to choose a file</div>
+      <div 
+        onDrop={onDrop} 
+        onDragOver={(e) => e.preventDefault()} 
+        className={`border-2 border-dashed rounded-lg p-4 sm:p-5 flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4 ${
+          light 
+            ? 'border-indigo-100 bg-white' 
+            : 'border-purple-600 bg-gradient-to-b from-purple-600/5 to-transparent'
+        }`}
+      >
+        <div className="text-center sm:text-left">
+          <strong className={`text-sm sm:text-base ${light ? 'text-gray-900' : 'text-white'}`}>Drop a PDF here</strong>
+          <div className={`text-xs sm:text-sm ${light ? 'text-gray-500' : 'text-purple-300'}`}>or click to choose a file</div>
         </div>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <input ref={inputRef} type="file" accept="application/pdf" onChange={onChange} style={{ display: 'none' }} />
-          <button onClick={() => inputRef.current && inputRef.current.click()} style={{ background: btnBg, color: '#fff', border: 'none', padding: '10px 14px', borderRadius: 8, cursor: 'pointer' }}>{loading ? 'Parsing...' : 'Choose file'}</button>
-          <button onClick={useSample} style={{ background: '#eef2ff', color: '#111827', border: 'none', padding: '8px 12px', borderRadius: 8, cursor: 'pointer' }} disabled={loading}>Use sample</button>
+        <div className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center w-full sm:w-auto">
+          <input 
+            ref={inputRef} 
+            type="file" 
+            accept="application/pdf" 
+            onChange={onChange} 
+            className="hidden" 
+          />
+          <button 
+            onClick={() => inputRef.current?.click()} 
+            className={`px-3 sm:px-3.5 py-2 sm:py-2.5 rounded-lg text-white text-sm sm:text-base border-none cursor-pointer ${
+              light ? 'bg-gray-900 hover:bg-gray-800' : 'bg-purple-600 hover:bg-purple-700'
+            } disabled:opacity-50 disabled:cursor-not-allowed transition-colors`}
+            disabled={loading}
+          >
+            {loading ? 'Parsing...' : 'Choose file'}
+          </button>
+          <button 
+            onClick={useSample} 
+            disabled={loading}
+            className="px-3 py-2 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-gray-900 text-sm sm:text-base border-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            Use sample
+          </button>
         </div>
       </div>
-      {error && <div style={{ color: '#ef4444', marginTop: 8 }}>{error}</div>}
+      {error && <div className="text-red-500 mt-2 text-sm sm:text-base break-words">{error}</div>}
     </div>
   );
 }
